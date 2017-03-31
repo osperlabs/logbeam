@@ -12,6 +12,14 @@ find for `configuring the cwlogs agent`__
 .. __: http://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AgentReference.html
 
 
+Installation
+------------
+
+::
+
+    pip install logbeam
+
+
 Usage
 -----
 
