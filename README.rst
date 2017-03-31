@@ -37,6 +37,15 @@ logbeam's ``CloudWatchLogsHandler``
 
     logger.info("Hello world!")
 
+Warning: If you attach the logger to the root logger like the example above, you
+should turn off propagation for the ``cwlogs`` logger to prevent a log-loop-storm,
+where logs about the CloudWatch process cause additional logs to be sent to
+CloudWatch.
+
+You can turn propagation off like by calling ``logging.getLogger('cwlogs').propagate = False``.
+You may also want to attach a file log handler here so you can see any errors
+or warnings from it.
+
 
 Handler arguments
 -----------------
