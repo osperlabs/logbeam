@@ -50,7 +50,7 @@ should turn off propagation for the ``cwlogs`` logger to prevent a log-loop-stor
 where logs about the CloudWatch process cause additional logs to be sent to
 CloudWatch.
 
-You can turn propagation off like by calling ``logging.getLogger('cwlogs').propagate = False``.
+You can turn propagation off by calling ``logging.getLogger('cwlogs').propagate = False``.
 You may also want to attach a file log handler here so you can see any errors
 or warnings from it.
 
