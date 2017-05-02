@@ -81,6 +81,40 @@ The ``CloudWatchLogsHandler`` can be initialised with the following args
 - ``batch_size`` - (default 1024*1024) maximum size in bytes a batch of logs can reach before being transmitted to CloudWatch.
 - ``logs_client`` - (optional) an initialised boto3 ``CloudWatchLogs.Client``. if this isn't supplied the handler will initialise its own.
 
+IAM Permissions
+---------------
+
+Here is the minimum IAM policy required for logbeam
+
+::
+
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:DescribeLogStreams"
+                ],
+                "Resource": [
+                    "arn:aws:logs:<region>:<account_id>:log-group:<log_group>:log-stream:"
+                ]
+            },
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                ],
+                "Resource": [
+                    "arn:aws:logs:<region>:<account_id>:log-group:<log_group>:log-stream:<log_stream>"
+                ]
+            }
+        ]
+    }
+
+
 
 A word on batch settings
 ------------------------
