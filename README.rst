@@ -56,6 +56,7 @@ logger (``logging.getLogger()``) you need to disable propagation for the
 following example sends logs from these loggers to stderr instead:
 
 ::
+
     local_handler = logging.StreamHandler()
 
     for logger_name in ('cwlogs', 'botocore'):
