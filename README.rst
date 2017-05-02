@@ -39,20 +39,33 @@ logbeam's ``CloudWatchLogsHandler``
         batch_size=1048576
     )
 
-    logger = logging.getLogger()
+    # If you use the root logger instead of __name__ you will need to turn off
+    # propagation for loggers 'cwlogs' and 'botocore' or a cycle of logs about
+    # log message delivery will be created, causing the log handler never to
+    # exit and your program to hang.
+    logger = logging.getLogger(__name__)
+
     logger.setLevel(logging.INFO)
     logger.addHandler(cw_handler)
 
     logger.info("Hello world!")
 
-Warning: If you attach the logger to the root logger like the example above, you
-should turn off propagation for the ``cwlogs`` logger to prevent a log-loop-storm,
-where logs about the CloudWatch process cause additional logs to be sent to
-CloudWatch.
+Warning: As mentioned in the snippet above, if you attach the handler to the root
+logger (``logging.getLogger()``) you need to disable propagation for the
+``cwlogs`` and ``botocore`` loggers to prevent an infinite loop of logs. The
+following example sends logs from these loggers to stderr instead:
 
-You can turn propagation off by calling ``logging.getLogger('cwlogs').propagate = False``.
-You may also want to attach a file log handler here so you can see any errors
-or warnings from it.
+::
+    local_handler = logging.StreamHandler()
+
+    for logger_name in ('cwlogs', 'botocore'):
+        lg = logging.getLogger(logger_name)
+
+        # Don't propagate to the root handler if it has a CloudWatchLogsHandler
+        lg.propagate = False
+
+        # Write logs to stderr instead
+        lg.addHandler(local_handler)
 
 
 Handler arguments
