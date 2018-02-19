@@ -6,7 +6,7 @@ from botocore.exceptions import ClientError
 
 from cwlogs.push import EventBatchPublisher, EventBatch, LogEvent
 from cwlogs.threads import BaseThread
-from six.moves import queue as Queue
+from six.moves import queue
 
 
 logger = logging.getLogger(__name__)
@@ -28,17 +28,18 @@ class BatchedCloudWatchSink(BaseThread):
             log_stream_name,
             buffer_duration,
             batch_count,
-            batch_size):
+            batch_size,
+            queue_cls=queue.Queue):
         super(BatchedCloudWatchSink, self).__init__(Event())
         self.logs_service = logs_service
         self.publisher_stop_flag = Event()
         self.group_stop_flag = Event()
 
         # Incoming LogEvents enter this queue via self.add_event()
-        self.event_queue = Queue.Queue()
+        self.event_queue = queue_cls()
         # Completed EventBatches get put onto this queue, for the
         # EventBatchPublisher to upload
-        self.publisher_queue = Queue.Queue()
+        self.publisher_queue = queue_cls()
 
         # The publisher thread, will be started and stopped with this thread
         self.publisher = EventBatchPublisher(
@@ -101,7 +102,7 @@ class BatchedCloudWatchSink(BaseThread):
                 if add_status == 0:
                     self._send_batch_to_publisher(force=True)
                     self._add_event_to_batch(event)
-            except Queue.Empty:
+            except queue.Empty:
                 if self._exit_needed():
                     self._send_batch_to_publisher(force=True)
                     break
@@ -125,7 +126,7 @@ class CloudWatchLogsHandler(logging.Handler):
             log_group_name,
             log_stream_name,
             buffer_duration=10000,
-            batch_count=10,
+            batch_count=1000,
             batch_size=1024 * 1024,
             logs_client=None,
             *args, **kwargs):
